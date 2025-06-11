@@ -1,5 +1,8 @@
 #!/bin/bash
 
+REPO_URL="https://raw.githubusercontent.com/YOUR_USERNAME/xui-backup-Panel/main"
+SCRIPT_NAME="backup.py"
+
 show_menu() {
   echo "=============================="
   echo "  XUI Telegram Backup Bot"
@@ -19,14 +22,22 @@ install_bot() {
     exit 1
   fi
 
+  echo "⬇️ Downloading bot script from GitHub..."
+  curl -s -O "$REPO_URL/$SCRIPT_NAME"
+
+  if [[ ! -f "$SCRIPT_NAME" ]]; then
+    echo "❌ Failed to download $SCRIPT_NAME"
+    exit 1
+  fi
+
   echo "📦 Installing dependencies..."
   sudo dnf install -y python3 python3-pip
   pip3 install --upgrade pip
   pip3 install aiogram==2.25.1 apscheduler
 
   echo "🔧 Configuring bot..."
-  sed -i "s|API_TOKEN = 'YOUR_BOT_TOKEN'|API_TOKEN = '${TOKEN}'|g" backup.py
-  sed -i "s|ADMIN_ID = 123456789|ADMIN_ID = ${ADMIN_ID}|g" backup.py
+  sed -i "s|API_TOKEN = 'YOUR_BOT_TOKEN'|API_TOKEN = '${TOKEN}'|g" $SCRIPT_NAME
+  sed -i "s|ADMIN_ID = 123456789|ADMIN_ID = ${ADMIN_ID}|g" $SCRIPT_NAME
 
   cat <<EOF | sudo tee /etc/systemd/system/xui-backup-bot.service
 [Unit]
@@ -36,7 +47,7 @@ After=network.target
 [Service]
 User=root
 WorkingDirectory=$PWD
-ExecStart=/usr/bin/python3 $PWD/backup.py
+ExecStart=/usr/bin/python3 $PWD/$SCRIPT_NAME
 Restart=always
 
 [Install]
@@ -59,6 +70,7 @@ uninstall_bot() {
   sudo systemctl disable xui-backup-bot
   sudo rm -f /etc/systemd/system/xui-backup-bot.service
   sudo systemctl daemon-reload
+  rm -f backup.py config.json
   echo "✅ Bot removed!"
 }
 
