@@ -1,6 +1,6 @@
 #!/bin/bash
 
-REPO_URL="https://raw.githubusercontent.com/YOUR_USERNAME/xui-backup-Panel/main"
+REPO_URL="https://raw.githubusercontent.com/Mirzakochak/xui-backup-Panel/main"
 SCRIPT_NAME="backup.py"
 
 show_menu() {
@@ -23,7 +23,7 @@ install_bot() {
   fi
 
   echo "⬇️ Downloading bot script from GitHub..."
-  curl -s -O "$REPO_URL/$SCRIPT_NAME"
+  curl -s -o $SCRIPT_NAME "$REPO_URL/$SCRIPT_NAME"
 
   if [[ ! -f "$SCRIPT_NAME" ]]; then
     echo "❌ Failed to download $SCRIPT_NAME"
